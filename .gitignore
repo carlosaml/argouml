@@ -9,3 +9,7 @@
 /.classpath.full
 /.fbwarnings
 /.fbprefs
+*.class
+*.jar
+*.war
+*.ear

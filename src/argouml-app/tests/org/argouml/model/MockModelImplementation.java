@@ -38,12 +38,12 @@
 
 package org.argouml.model;
 
+import org.easymock.MockControl;
+
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.easymock.MockControl;
 
 /**
  * A mock ModelImplementation.<p>
@@ -56,7 +56,7 @@ import org.easymock.MockControl;
  *
  * @author Linus Tolke
  */
-class MockModelImplementation implements ModelImplementation {
+public class MockModelImplementation implements ModelImplementation {
 
     /**
      * A list of all the control objects.

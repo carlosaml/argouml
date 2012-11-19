@@ -38,11 +38,6 @@
 
 package org.argouml.notation.providers.uml;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-
 import org.apache.log4j.Logger;
 import org.argouml.application.events.ArgoEventPump;
 import org.argouml.application.events.ArgoEventTypes;
@@ -51,13 +46,17 @@ import org.argouml.i18n.Translator;
 import org.argouml.kernel.Project;
 import org.argouml.kernel.ProjectManager;
 import org.argouml.kernel.ProjectSettings;
-import org.argouml.model.Facade;
 import org.argouml.model.InvalidElementException;
 import org.argouml.model.Model;
 import org.argouml.notation.NotationSettings;
 import org.argouml.notation.providers.AttributeNotation;
 import org.argouml.uml.StereotypeUtility;
 import org.argouml.util.MyTokenizer;
+
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * The notation for an attribute for UML.
@@ -530,36 +529,12 @@ public class AttributeNotationUml extends AttributeNotation {
 
     @Override
     public String toString(Object modelElement, NotationSettings settings) {
-        return toString(modelElement, settings.isUseGuillemets(), settings
-                .isShowVisibilities(), settings.isShowMultiplicities(), settings
-                .isShowTypes(), settings.isShowInitialValues(),
-                settings.isShowProperties());
-    }
-
-    /*
-     * Generates a string representation for the provided
-     * attribute. The string representation will be of the form:
-     *          visibility name [multiplicity] : type-expression =
-     *                          initial-value {property-string}
-     * Depending on settings in Notation, visibility, multiplicity,
-     * type-expression, initial value and properties are shown/not shown.
-     */
-    private String toString(Object modelElement, boolean useGuillemets, 
-            boolean showVisibility, boolean showMultiplicity, boolean showTypes,
-            boolean showInitialValues, boolean showProperties) {
         try {
             String derived = "";
-            Object tv = Model.getFacade().getTaggedValue(modelElement, 
-                    Facade.DERIVED_TAG);
-            if (tv != null) {
-                String tag = Model.getFacade().getValueOfTag(tv);
-                if ("true".equalsIgnoreCase(tag)) {
-                    derived = "/";
-                }
-            }
-            
-            String stereo = NotationUtilityUml.generateStereotype(modelElement, 
-                    useGuillemets);
+
+
+            String stereo = NotationUtilityUml.generateStereotype(modelElement,
+                    settings.isUseGuillemets());
             String name = Model.getFacade().getName(modelElement);
             String multiplicity = generateMultiplicity(
                     Model.getFacade().getMultiplicity(modelElement));
@@ -575,7 +550,8 @@ public class AttributeNotationUml extends AttributeNotation {
             if ((stereo != null) && (stereo.length() > 0)) {
                 sb.append(stereo).append(" ");
             }
-            if (showVisibility) {
+            if (settings
+                .isShowVisibilities()) {
                 String visibility = NotationUtilityUml
                         .generateVisibility2(modelElement);
                 if (visibility != null && visibility.length() > 0) {
@@ -587,7 +563,7 @@ public class AttributeNotationUml extends AttributeNotation {
             }
             if ((multiplicity != null)
                     && (multiplicity.length() > 0)
-                    && showMultiplicity) {
+                    && settings.isShowMultiplicities()) {
                 sb.append("[").append(multiplicity).append("]").append(" ");
             }
             if ((type != null) && (type.length() > 0)
@@ -596,20 +572,21 @@ public class AttributeNotationUml extends AttributeNotation {
                      * with older ArgoUML versions that did not have this
                      * setting:
                      */
-                    && showTypes) {
+                    && settings
+                .isShowTypes()) {
                 sb.append(": ").append(type).append(" ");
             }
-            if (showInitialValues) {
+            if (settings.isShowInitialValues()) {
                 Object iv = Model.getFacade().getInitialValue(modelElement);
                 if (iv != null) {
-                    String initialValue = 
+                    String initialValue =
                         (String) Model.getFacade().getBody(iv);
                     if (initialValue != null && initialValue.length() > 0) {
                         sb.append(" = ").append(initialValue).append(" ");
                     }
                 }
             }
-            if (showProperties) {
+            if (settings.isShowProperties()) {
                 String changeableKind = "";
                 if (Model.getFacade().isReadOnly(modelElement)) {
                     changeableKind = "frozen";
@@ -635,7 +612,7 @@ public class AttributeNotationUml extends AttributeNotation {
             return "";
         }
     }
-    
+
     private static String generateMultiplicity(Object m) {
         if (m == null || "1".equals(Model.getFacade().toString(m))) {
             return "";
